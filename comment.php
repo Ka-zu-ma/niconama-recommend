@@ -2,8 +2,8 @@
 
 // ログイン画面へのアクセス
 $url = 'https://secure.nicovideo.jp/secure/login';
-$data = ['mail_tel' => 'km.km.kzkz00@gmail.com', 
-         'password' => 'tvrsvr777nc'
+$data = ['mail_tel' => '', 
+         'password' => ''
          ];
 
 $live_id = '277981463';
