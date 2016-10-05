@@ -7,9 +7,9 @@ $live_id = '';
 
 
 //ニコニコに登録してるメルアド
-$mail_tel = 'km.km.kzkz00@gmail.com';
+$mail_tel = '';
 // ニコニコに登録してるパスワード
-$password = 'tvrsvr777nc';
+$password = '';
 
 $cookies = [];
 
