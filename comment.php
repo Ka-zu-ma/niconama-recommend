@@ -7,128 +7,114 @@ $live_id = '';
 
 
 //ニコニコに登録してるメルアド
-$mail_tel = '';
+$mail_tel = 'km.km.kzkz00@gmail.com';
 // ニコニコに登録してるパスワード
-$password = '';
+$password = 'tvrsvr777nc';
+
+$cookies = [];
+
+$session_id = '';
 
 
+//ログイン処理
+$method = 'POST';
 
-// $session_id = '';
+$request = array('mail_tel' => $mail_tel, 
+            'password' => $password
+);
 
-// // 2.  ログイン処理
-// $method = 'POST';
+$query = http_build_query($request, '', '&');
 
-// $request = array('mail_tel' => 'km.km.kzkz00@gmail.com', 
-//             'password' => 'tvrsvr777nc'
-// );
+//リクエストヘッダ
+$header = array(
+    "Content-Type: application/x-www-form-urlencoded",
+    "Content-Length: " . strlen($query),
+    "Cookie: " . "Cookie: " . $session_id, // ★セッション管理ではセッションIDをクッキーにいれることがほとんどなので一緒に送信
+    "User-Agent: " . "hogehoge", // UserAgentで弾いてるサイトもあるので必要なら適当にセット
+);
 
-// $query = http_build_query($request, '', '&');
-
-// //リクエストヘッダ
-// $header = array(
-//     "Content-Type: application/x-www-form-urlencoded",
-//     "Content-Length: " . strlen($query),
-//     "Cookie: " . "Cookie: " . $session_id, // ★セッション管理ではセッションIDをクッキーにいれることがほとんどなので一緒に送信
-//     "User-Agent: " . "hogehoge", // UserAgentで弾いてるサイトもあるので必要なら適当にセット
-// );
-
-// $context = array(
-//     "http" => array(
-//         "method" => $method,
-//         "header" => implode("\r\n", $header),
-//         "content" => $query,
-//     )
-// );
+$context = array(
+    "http" => array(
+        "method" => $method,
+        "header" => implode("\r\n", $header),
+        "content" => $query,
+    )
+);
 
 
 // クッキーを取得
 // file_get_contents後に$http_response_headerにレスポンスヘッダが格納されているのでここからクッキー情報を取得
 
+$response = file_get_contents($url, false, stream_context_create($context));
 
-
-
-
-// $response = file_get_contents($url, false, stream_context_create($context));
-
-// $response = file_get_contents($url);
-
-// // 存在しないURLにリクエストを出したとき、エラー表示
-// if($http_response_header[0] == 'HTTP/1.1 404 Not Found'){
-//         print '404 Not Foundです。';
-// }
-
-
-// var_dump($http_response_header);
-
-// $cookies = [];
-
-
-
-// foreach ($http_response_header as $v) {
-//     list($key, $value) = explode(':', $v);
-//     if ($key == 'Set-Cookie') {
-//         $cookies[] = $value;
-//     }
-// }
-
-// // CookieからSessionIdを取得                            
-// $session_id = '';
-// foreach ($cookies as $v) {
-//     if (preg_match('/SESSIONID=(.+); /', $v)) {
-//         $session_id = $v;
-//     }
-// }
-
-
-
-
-
-
-
-
-// var_dump($response);
-
-
-
-
-
-
-
-
-
-$data = array('mail_tel' => $mail_tel, 
-              'password' => $password
-);
-
-
-// POST用関数
-function http_post ($url, $data)
-{
-  $data_url = http_build_query ($data);
-  $data_len = strlen ($data_url);
- 
-  return array (
-        'content'=>  file_get_contents (
-            $url,
-            false,
-            stream_context_create (
-              array ('http' =>
-                  array (
-                      'method'=>'POST',
-                      'header'=>'Content-Type: application/x-www-form-urlencoded\r\nContent-Length: $data_len\r\n',
-                      'content'=>$data_url)
-                  )
-              )
-            ),
-        'headers'=> $http_response_header
-  );
-
+// 存在しないURLにリクエストを出したとき、エラー表示
+if($http_response_header[0] == 'HTTP/1.1 404 Not Found'){
+        print '404 Not Foundです。';
 }
 
-// 送信
-$result = http_post($url, $data);
+var_dump($http_response_header);
 
-var_dump($result);
+
+foreach ($http_response_header as $v) {
+
+//":"の形以外は飛ばす
+    // if (0 == strcmp($v, 'HTTP/1.1 302 Found' || 0 == strcmp($v, 'HTTP/1.1 200 OK'))) {
+    //     continue;
+    // }
+
+
+    list($key, $value) = explode(':', $v);
+
+// var_dump(list($key, $value));
+
+
+    if ($key == 'Set-Cookie') {
+        $cookies[] = $value;
+    }
+}
+
+var_dump($cookies);
+
+// CookieからSessionIdを取得                            
+
+foreach ($cookies as $v) {
+    if (preg_match('/user_session=user_session_=(\w+)/', $v, $session_id)) {
+    }
+}
+
+
+var_dump($session_id);
+
+
+
+
+// // POST用関数
+// function http_post ($url, $data)
+// {
+//   $data_url = http_build_query ($data);
+//   $data_len = strlen ($data_url);
+ 
+//   return array (
+//         'content'=>  file_get_contents (
+//             $url,
+//             false,
+//             stream_context_create (
+//               array ('http' =>
+//                   array (
+//                       'method'=>'POST',
+//                       'header'=>'Content-Type: application/x-www-form-urlencoded\r\nContent-Length: $data_len\r\n',
+//                       'content'=>$data_url)
+//                   )
+//               )
+//             ),
+//         'headers'=> $http_response_header
+//   );
+
+// }
+
+// // 送信
+// $result = http_post($url, $data);
+
 
 
 
