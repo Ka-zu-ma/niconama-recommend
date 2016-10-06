@@ -6,6 +6,7 @@ $login_url = 'https://account.nicovideo.jp/api/v1/login?show_button_twitter=1&si
 //プレイヤー情報を得るためのリクエストURL
 $ply_sts_url = 'http://live.nicovideo.jp/api/getplayerstatus?v=';
 
+// 放送ID
 $live_id = '';
 
 
@@ -66,15 +67,12 @@ foreach ($http_response_header as $v) {
 
     list($key, $value) = explode(':', $v);
 
-// var_dump(list($key, $value));
-
-
     if ($key == 'Set-Cookie') {
         $cookies[] = $value;
     }
 }
 
-var_dump($cookies);
+// var_dump($cookies);
 
 // CookieからSessionIdを取得                            
 foreach ($cookies as $v) {
@@ -90,7 +88,7 @@ foreach ($cookies as $v) {
 }
 
 
-var_dump($session_id);
+// var_dump($session_id);
 
 //ログイン後にやりたい処理
 // コメントサーバー情報の取得
@@ -120,8 +118,57 @@ $context = array(
 
 $response = file_get_contents($ply_sts_url.$live_id, false, stream_context_create($context));
 
-var_dump($response);
+//XMLをオブジェクトに変換
+$xmlObj = simplexml_load_string($response);
 
+//オブジェクトを連想配列に変換
+$xmlAry = json_decode( json_encode($xmlObj),true);
+
+// コメントサーバーURL
+$addr = $xmlAry['ms']['addr'];
+// ポート
+$port = $xmlAry['ms']['port'];
+//スレッド
+$thread = $xmlAry['ms']['thread'];
+
+
+
+
+
+
+
+$request = array('port' => $port,
+                'thread' => $thread
+                );
+$method = 'POST';
+
+$query = http_build_query($request, '', '&');
+
+//リクエストヘッダ
+$header = array(
+    "Content-Type: application/x-www-form-urlencoded",
+    "Content-Length: " . strlen($query),
+    "Cookie: " . $session_id, 
+    "User-Agent: " . "hogehoge", 
+);
+
+$context = array(
+    "http" => array(
+        "method" => $method,
+        "header" => implode("\r\n", $header),
+        "content" => $query,
+    )
+);
+
+
+
+
+
+$response = file_get_contents($addr, false, stream_context_create($context));
+
+
+
+var_dump($response);
 
 
 
