@@ -4,7 +4,7 @@
 $login_url = 'https://account.nicovideo.jp/api/v1/login?show_button_twitter=1&site=niconico&show_button_facebook=1&next_url=';
 
 //プレイヤー情報を得るためのリクエストURL
-$ply_sts_url = 'http://live.nicovideo.jp/api/getplayerstatus?v=lv';
+$ply_sts_url = 'http://live.nicovideo.jp/api/getplayerstatus?v=';
 
 $live_id = '';
 
@@ -14,7 +14,7 @@ $mail_tel = '';
 // ニコニコに登録してるパスワード
 $password = '';
 
-$cookies = [];
+$cookies = array();
 
 $session_id = '';
 
@@ -31,7 +31,7 @@ $query = http_build_query($request, '', '&');
 $header = array(
     "Content-Type: application/x-www-form-urlencoded",
     "Content-Length: " . strlen($query),
-    "Cookie: " . "Cookie: " . $session_id, 
+    "Cookie: " . $session_id, 
     "User-Agent: " . "hogehoge", 
 );
 
@@ -104,7 +104,7 @@ $query = http_build_query($request, '', '&');
 $header = array(
     "Content-Type: application/x-www-form-urlencoded",
     "Content-Length: " . strlen($query),
-    "Cookie: " . "Cookie: " . $session_id, 
+    "Cookie: " . $session_id, 
     "User-Agent: " . "hogehoge", 
 );
 
