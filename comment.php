@@ -118,6 +118,9 @@ $context = array(
 
 $response = file_get_contents($ply_sts_url.$live_id, false, stream_context_create($context));
 
+
+// var_dump($response);
+
 //XMLをオブジェクトに変換
 $xmlObj = simplexml_load_string($response);
 
@@ -131,44 +134,97 @@ $port = $xmlAry['ms']['port'];
 //スレッド
 $thread = $xmlAry['ms']['thread'];
 
+// var_dump($thread);
+
+//送信するメッセージ
+$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-10" />';
+
+$res = '';
+
+// TCP/IP ソケット作成
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+
+if ($socket == true) {
+
+    // 送信タイムアウト時間の設定(10秒)
+    // $timeout = array('sec' => 10, 'usec' => 0);
+    // socket_set_option($socket, SOL_SOCKET, SO_SNDTIMEO, $timeout);
+
+
+    // ソケット接続
+    $result = socket_connect($socket,$addr,$port);
+
+
+
+    if ($result == true) {
+
+        $result = socket_write($socket, $msg, strlen($msg));
+
+        if ($result === true){
+
+            //PHP_EOL:改行
+            $res = "送信しました。".PHP_EOL;
+
+        }else{
+
+            //socket_strerror:ソケットエラーの内容を文字列として返す
+            //socket_last_error:ソケットの直近のエラーを返す
+            $res = "socket_write() 失敗: ".socket_strerror(socket_last_error($socket)).PHP_EOL;
+            
+        }
+
+
+
+    }else{
+
+        $res = "socket_connect() 失敗: ".socket_strerror(socket_last_error($socket)).PHP_EOL;
+
+
+    }
+
+}else{
+
+    $res = "socket_create() 失敗: ".socket_strerror(socket_last_error()).PHP_EOL;
+
+
+}
+
+
+var_dump($res);
+
+
+
+// $request = array('port' => $port,
+//                 'thread' => $thread
+//                 );
+// $method = 'POST';
+
+// $query = http_build_query($request, '', '&');
+
+// //リクエストヘッダ
+// $header = array(
+//     "Content-Type: application/x-www-form-urlencoded",
+//     "Content-Length: " . strlen($query),
+//     "Cookie: " . $session_id, 
+//     "User-Agent: " . "hogehoge", 
+// );
+
+// $context = array(
+//     "http" => array(
+//         "method" => $method,
+//         "header" => implode("\r\n", $header),
+//         "content" => $query,
+//     )
+// );
 
 
 
 
 
-
-$request = array('port' => $port,
-                'thread' => $thread
-                );
-$method = 'POST';
-
-$query = http_build_query($request, '', '&');
-
-//リクエストヘッダ
-$header = array(
-    "Content-Type: application/x-www-form-urlencoded",
-    "Content-Length: " . strlen($query),
-    "Cookie: " . $session_id, 
-    "User-Agent: " . "hogehoge", 
-);
-
-$context = array(
-    "http" => array(
-        "method" => $method,
-        "header" => implode("\r\n", $header),
-        "content" => $query,
-    )
-);
+// $response = file_get_contents($addr, false, stream_context_create($context));
 
 
 
-
-
-$response = file_get_contents($addr, false, stream_context_create($context));
-
-
-
-var_dump($response);
 
 
 
