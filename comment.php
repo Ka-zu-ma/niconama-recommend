@@ -134,10 +134,9 @@ $port = $xmlAry['ms']['port'];
 //スレッド
 $thread = $xmlAry['ms']['thread'];
 
-// var_dump($thread);
 
 //送信するメッセージ
-$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-10" />';
+$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-100"/>';
 
 $res = '';
 
@@ -154,16 +153,19 @@ if ($socket == true) {
     // ソケット接続
     $result = socket_connect($socket,$addr,$port);
 
-
-
     if ($result == true) {
 
         $result = socket_write($socket, $msg, strlen($msg));
 
-        if ($result === true){
+        if ($result == true){
 
             //PHP_EOL:改行
             $res = "送信しました。".PHP_EOL;
+
+
+
+
+
 
         }else{
 
@@ -191,6 +193,32 @@ if ($socket == true) {
 
 
 var_dump($res);
+
+// $buf = 'This is my buffer.';
+
+// if (false !== ($bytes = socket_recv($socket, $buf, 2048, MSG_WAITALL))) {
+
+//     echo "Read $bytes bytes from socket_recv(). Closing socket...";
+// } else {
+//     echo "socket_recv() failed; reason: " . socket_strerror(socket_last_error($socket)) . "\n";
+// }
+
+
+$data = socket_read($socket, 200);
+
+
+var_dump($data);
+
+
+
+
+
+
+print('aaaaaaaaa');
+// var_dump($bytes);
+
+// var_dump($buf);
+
 
 
 
