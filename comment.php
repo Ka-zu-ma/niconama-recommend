@@ -30,17 +30,17 @@ $query = http_build_query($request, '', '&');
 
 //リクエストヘッダ
 $header = array(
-    "Content-Type: application/x-www-form-urlencoded",
-    "Content-Length: " . strlen($query),
-    "Cookie: " . $session_id, 
-    "User-Agent: " . "hogehoge", 
+    'Content-Type: application/x-www-form-urlencoded',
+    'Content-Length: ' . strlen($query),
+    'Cookie: ' . $session_id, 
+    'User-Agent: ' . 'hogehoge', 
 );
 
 $context = array(
-    "http" => array(
-        "method" => $method,
-        "header" => implode("\r\n", $header),
-        "content" => $query,
+    'http' => array(
+        'method' => $method,
+        'header' => implode('\r\n', $header),
+        'content' => $query,
     )
 );
 
@@ -53,7 +53,7 @@ if($http_response_header[0] == 'HTTP/1.1 404 Not Found'){
         print '404 Not Foundです。';
 }
 
-// var_dump($http_response_header);
+var_dump($http_response_header);
 
 // クッキーを取得
 // file_get_contents後に$http_response_headerにレスポンスヘッダが格納されているのでここからクッキー情報を取得
@@ -72,7 +72,7 @@ foreach ($http_response_header as $v) {
     }
 }
 
-// var_dump($cookies);
+var_dump($cookies);
 
 // CookieからSessionIdを取得                            
 foreach ($cookies as $v) {
@@ -88,7 +88,9 @@ foreach ($cookies as $v) {
 }
 
 
-// var_dump($session_id);
+var_dump($session_id);
+
+
 
 //ログイン後にやりたい処理
 // コメントサーバー情報の取得
@@ -100,17 +102,18 @@ $query = http_build_query($request, '', '&');
 
 //リクエストヘッダ
 $header = array(
-    "Content-Type: application/x-www-form-urlencoded",
-    "Content-Length: " . strlen($query),
-    "Cookie: " . $session_id, 
-    "User-Agent: " . "hogehoge", 
+    'Content-Type: application/x-www-form-urlencoded',
+    'Content-Length: ' . strlen($query),
+    'Cookie: ' . $session_id, 
+    'User-Agent: ' . 'hogehoge', 
 );
 
+//implodeの第一引数を''で囲むとなぜか、responseがなぜかnotloginが返ってくる
 $context = array(
-    "http" => array(
-        "method" => $method,
-        "header" => implode("\r\n", $header),
-        "content" => $query,
+    'http' => array(
+        'method' => $method,
+        'header' => implode("\r\n", $header),
+        'content' => $query,
     )
 );
 
@@ -119,7 +122,9 @@ $context = array(
 $response = file_get_contents($ply_sts_url.$live_id, false, stream_context_create($context));
 
 
-// var_dump($response);
+var_dump($response);
+
+
 
 //XMLをオブジェクトに変換
 $xmlObj = simplexml_load_string($response);
@@ -134,14 +139,24 @@ $port = $xmlAry['ms']['port'];
 //スレッド
 $thread = $xmlAry['ms']['thread'];
 
+var_dump($xmlAry);
+
 
 //送信するメッセージ
-$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-100"/>';
+$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-1"/>';
+
+// $msg = '<thread thread="'.$thread.'" version="20061206" res_from="-10"/>';
+
+
+
+
 
 $res = '';
 
 // TCP/IP ソケット作成
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+
+var_dump($socket);
 
 if ($socket == true) {
 
@@ -151,27 +166,26 @@ if ($socket == true) {
 
 
     // ソケット接続
-    $result = socket_connect($socket,$addr,$port);
+    $connect_result = socket_connect($socket,$addr,$port);
 
-    if ($result == true) {
+var_dump($connect_result);
 
-        $result = socket_write($socket, $msg, strlen($msg));
 
-        if ($result == true){
+    if ($connect_result === true) {
+
+        $write_result = socket_write($socket, $msg, strlen($msg));
+var_dump($write_result);
+
+        if ($write_result == true){
 
             //PHP_EOL:改行
-            $res = "送信しました。".PHP_EOL;
-
-
-
-
-
+            $res = '送信しました。'.PHP_EOL;
 
         }else{
 
             //socket_strerror:ソケットエラーの内容を文字列として返す
             //socket_last_error:ソケットの直近のエラーを返す
-            $res = "socket_write() 失敗: ".socket_strerror(socket_last_error($socket)).PHP_EOL;
+            $res = 'socket_write() 失敗: '.socket_strerror(socket_last_error($socket)).PHP_EOL;
             
         }
 
@@ -179,20 +193,40 @@ if ($socket == true) {
 
     }else{
 
-        $res = "socket_connect() 失敗: ".socket_strerror(socket_last_error($socket)).PHP_EOL;
+        $res = 'socket_connect() 失敗: '.socket_strerror(socket_last_error($socket)).PHP_EOL;
 
 
     }
 
 }else{
 
-    $res = "socket_create() 失敗: ".socket_strerror(socket_last_error()).PHP_EOL;
+    $res = 'socket_create() 失敗: '.socket_strerror(socket_last_error()).PHP_EOL;
 
 
 }
-
-
 var_dump($res);
+
+$read_result = socket_read($socket, 2048);
+
+// $buf = 'This is my buffer.';
+// $bytes = socket_recv($socket, $buf, 2048, MSG_WAITALL);
+
+
+// while($read_result = socket_read($socket, 1024)){
+
+//     $data .= $read_result; 
+
+
+// };
+
+
+socket_close($socket);
+
+
+var_dump($read_result);
+
+
+
 
 // $buf = 'This is my buffer.';
 
@@ -204,17 +238,17 @@ var_dump($res);
 // }
 
 
-$data = socket_read($socket, 200);
-
-
-var_dump($data);
 
 
 
 
 
 
-print('aaaaaaaaa');
+
+
+
+
+
 // var_dump($bytes);
 
 // var_dump($buf);
