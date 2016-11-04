@@ -7,7 +7,7 @@ $login_url = 'https://account.nicovideo.jp/api/v1/login?show_button_twitter=1&si
 $ply_sts_url = 'http://live.nicovideo.jp/api/getplayerstatus?v=';
 
 // 放送ID
-$live_id = '';
+$live_id = 'lv';
 
 
 //ニコニコに登録してるメルアド
@@ -143,7 +143,21 @@ var_dump($xmlAry);
 
 
 //送信するメッセージ
-$msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-1"/>';
+// res_fromは新しい順に何件前までを取得するかを指定 -1から-1000まで
+// res_fromに不正な数値が入力された場合は、-250が設定される。
+// 投稿者コメントを取得する時は、これにfork="1"を追加する:
+
+$msg_format = '<thread thread="%s" version="(20061206|20090904)" res_from="-1"/>\0';
+
+// $msg_format = '<thread thread="%s" version="20090904" res_from="-1"/>\0';
+
+
+
+
+$msg = sprintf($msg_format,(string)$thread);
+
+// $msg = '<thread thread="'.$thread.'" version="(20061206|20090904)" res_from="-1"/>';
+
 
 // $msg = '<thread thread="'.$thread.'" version="20061206" res_from="-10"/>';
 
@@ -206,10 +220,13 @@ var_dump($write_result);
 }
 var_dump($res);
 
-$read_result = socket_read($socket, 2048);
+// $read_result = socket_read($socket, 2048);
 
-// $buf = 'This is my buffer.';
+$buf = 'This is my buffer.';
 // $bytes = socket_recv($socket, $buf, 2048, MSG_WAITALL);
+
+$bytes = socket_recv($socket, $buf, 2048, MSG_DONTWAIT);
+
 
 
 // while($read_result = socket_read($socket, 1024)){
@@ -219,11 +236,14 @@ $read_result = socket_read($socket, 2048);
 
 // };
 
-
 socket_close($socket);
 
+var_dump($buf);
 
-var_dump($read_result);
+
+// var_dump($read_result);
+
+
 
 
 
