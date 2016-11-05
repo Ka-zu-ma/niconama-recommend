@@ -7,7 +7,7 @@ $login_url = 'https://account.nicovideo.jp/api/v1/login?show_button_twitter=1&si
 $ply_sts_url = 'http://live.nicovideo.jp/api/getplayerstatus?v=';
 
 // 放送ID
-$live_id = 'lv';
+$live_id = '';
 
 
 //ニコニコに登録してるメルアド
@@ -134,10 +134,15 @@ $xmlAry = json_decode( json_encode($xmlObj),true);
 
 // コメントサーバーURL
 $addr = $xmlAry['ms']['addr'];
+
+$addr = 'o'.$addr;
+
+
 // ポート
 $port = $xmlAry['ms']['port'];
 //スレッド
 $thread = $xmlAry['ms']['thread'];
+
 
 var_dump($xmlAry);
 
@@ -147,9 +152,9 @@ var_dump($xmlAry);
 // res_fromに不正な数値が入力された場合は、-250が設定される。
 // 投稿者コメントを取得する時は、これにfork="1"を追加する:
 
-$msg_format = '<thread thread="%s" version="(20061206|20090904)" res_from="-1"/>\0';
+// $msg_format = '<thread thread="%s" version="(20061206|20090904)" res_from="-10" />\0';
 
-// $msg_format = '<thread thread="%s" version="20090904" res_from="-1"/>\0';
+$msg_format = '<thread thread="%s" version="20061206" res_from="-10"/>\0';
 
 
 
@@ -163,14 +168,73 @@ $msg = sprintf($msg_format,(string)$thread);
 
 
 
+/*
+f~関数使ってる
+*/
 
+
+
+//とりあえずホスト名からソケットをオープンする
+$socket = fsockopen((string)$addr,(string)$port,$errno,$errstr,30);
+
+stream_set_blocking($socket, 0);
+
+
+//オープンしたソケットに上記のリクエストを書き込む(※送信する)
+fwrite($socket,$msg);
+
+
+ $buffer = '';
+
+while(1){
+
+    $buffer .= fread($socket, 1024);
+
+}
+
+
+
+ //ソケットを閉じる
+ fclose($socket);
+
+var_dump($errstr);
+
+
+exit();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+以下、ソケット関数を用いている
+*/
 
 $res = '';
 
 // TCP/IP ソケット作成
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-var_dump($socket);
+// $remote = socket_accept($socket);
+
+// socket_set_nonblock($remote); // リモートソケットをノンブロッキングモードにする
 
 if ($socket == true) {
 
@@ -223,9 +287,15 @@ var_dump($res);
 // $read_result = socket_read($socket, 2048);
 
 $buf = 'This is my buffer.';
-// $bytes = socket_recv($socket, $buf, 2048, MSG_WAITALL);
 
-$bytes = socket_recv($socket, $buf, 2048, MSG_DONTWAIT);
+
+if (false !== ($bytes = socket_recv($socket, $buf, 2048, MSG_DONTWAIT))) {
+    echo "Read $bytes bytes from socket_recv(). Closing socket...";
+} else {
+    var_dump($bytes);
+    echo "socket_recv() failed; reason: " . socket_strerror(socket_last_error($socket)) . "\n";
+}
+
 
 
 
@@ -238,7 +308,11 @@ $bytes = socket_recv($socket, $buf, 2048, MSG_DONTWAIT);
 
 socket_close($socket);
 
+
+
 var_dump($buf);
+
+
 
 
 // var_dump($read_result);
